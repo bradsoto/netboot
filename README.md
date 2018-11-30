@@ -1,5 +1,5 @@
 # netboot
-Very small linux system for capturing and deploying Windows ESD images.
+Very small (16MB) Linux system for capturing and deploying Windows ESD images.
 ### Requirements
 NFSv4 and dnsmasq
 ### How to Build and Install

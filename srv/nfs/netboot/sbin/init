@@ -79,7 +79,6 @@ reinstall(){
   install_efi_files
 }
 echo "Mounting System"
-/bin/busybox --install -s
 mount -t proc none /proc || failure 23
 mount -t sysfs none /sys || failure 24
 while :

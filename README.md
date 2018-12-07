@@ -11,7 +11,7 @@ sudo cp etc/exports /etc/exports
 ```
 Restart nfs server and dnsmasq. You should be up and running! 
 ### Capturing a Windows Image
-Make sure you have at least 8GB on the machine you run capture. Once it finishes move the image from /srv/nfs/netboot/capture to /srv/nfs/netboot/images. Then deploy it to thousands of machines using NFS.
+Make sure you have at least 8GB on the machine you run capture. Once it finishes move the image from /srv/nfs/netboot/capture/current.esd to /srv/nfs/netboot/images/current.esd. Then deploy it to thousands of machines using NFS.
 ### Rebuilding iPXE for custom directories
 ROM-o-matic (https://rom-o-matic.eu/) is the simplest way to customize iPXE. This is the embedded script we use for compatibility with modern NFS servers.
 ```

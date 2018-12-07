@@ -2,7 +2,7 @@
 Very small Linux system for capturing and deploying Windows ESD images.
 ### Requirements
 nfs-server and dnsmasq
-### How to Build and Install
+### How to Install
 ```
 cd netboot
 sudo cp -r srv/* /srv/

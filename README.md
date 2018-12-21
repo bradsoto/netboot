@@ -16,7 +16,9 @@ Make sure you have at least 8GB on the machine you run capture. Once it finishes
 ROM-o-matic (https://rom-o-matic.eu/) is the simplest way to customize iPXE. This is the embedded script we use for compatibility with modern NFS servers.
 ```
 #!ipxe
-dhcp
+
+:retry_dhcp
+dhcp && isset ${next-server} || goto retry_dhcp
 kernel nfs://${next-server}/srv/nfs/netboot.efi root=/dev/nfs rootfstype=nfs nfsroot=${next-server}:/srv/nfs/netboot,vers=3,tcp ip=dhcp rw quiet
 boot
 ```

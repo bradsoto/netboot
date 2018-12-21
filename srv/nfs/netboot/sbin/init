@@ -10,11 +10,13 @@ clear_line(){
 failure(){
   echo "Error Code" $1
   echo "Restarting in 30s"
-  sleep 30
+  sync
+  sleep 25
   reboot -f
 }
 restart(){
   echo "Rebooting"
+  sync
   sleep 5
   reboot -f
 }
@@ -38,7 +40,11 @@ install_efi_files(){
   mount /dev/sda1 /mnt/efi || failure 05
   echo "Installing UEFI Boot Files"
   tar -xJf /images/efi/efi.tar.xz -C /mnt/efi || failure 07
-  if [ ! -d /sys/firmware/efi ]; then
+  if [ -d /sys/firmware/efi ]; then
+    mount -t efivarfs -o rw efivarfs /sys/firmware/efi/efivars || failure 07
+    efibootmgr -q -c -L "Windows" -l "\efi\boot\bootx64.efi" || failure 08 
+    efibootmgr -q -D || failure 09
+  else
     # straight-up magical
     echo "Installing BIOS to UEFI Adapter"
     dd if=/images/efi/boot0af of=/dev/sda bs=440 count=1 conv=notrunc &> /dev/null || failure 08
@@ -48,9 +54,8 @@ install_efi_files(){
     dd if=part_mbr_new of=/dev/sda1 bs=512 count=1 conv=notrunc &> /dev/null || failure 12
     cp /images/efi/boot7 /mnt/efi/boot || failure 13
     mkdir -p /mnt/efi/EFI/CLOVER || failure 14
-    mv /mnt/efi/EFI/Boot/bootx64.efi /mnt/efi/EFI/CLOVER/CLOVERX64.efi || failure 15
+    cp /mnt/efi/EFI/Boot/bootx64.efi /mnt/efi/EFI/CLOVER/CLOVERX64.efi || failure 15
   fi
-  sync
   umount /mnt/efi || failure 21
   ntfs-3g /dev/sda2 /mnt/ntfs || failure 06
   if [ -f /images/unattend.xml ]; then
@@ -58,11 +63,10 @@ install_efi_files(){
     cp /images/unattend.xml /mnt/ntfs/Windows/Panther/Unattend/ || failure 17
   fi
   if [ -f /images/img0.jpg ]; then
-    rm /mnt/ntfs/Windows/Web/4K/Wallpaper/* || failure 19
-    rm /mnt/ntfs/Windows/Web/Wallpaper/Windows/* || failure 19
-    cp /images/img.jpg /mnt/ntfs/Windows/Web/Wallpaper/Windows/img0.jpg || failure 19
+    rm -rf /mnt/ntfs/Windows/Web/4K/Wallpaper/* || failure 19
+    rm -rf /mnt/ntfs/Windows/Web/Wallpaper/Windows/* || failure 19
+    cp /images/img0.jpg /mnt/ntfs/Windows/Web/Wallpaper/Windows/img0.jpg || failure 19
   fi
-  sync
   umount /mnt/ntfs || failure 20
 }
 reinstall(){
@@ -79,6 +83,7 @@ reinstall(){
   install_efi_files
 }
 echo "Mounting System"
+/bin/busybox --install -s
 mount -t proc none /proc || failure 23
 mount -t sysfs none /sys || failure 24
 while :
@@ -107,7 +112,6 @@ do
       echo "Copying User Files to the New System"
       ntfs-3g /dev/sda2 /mnt/ntfs || failure 31
       wimlib-imagex apply /capture/users.wim 1 /mnt/ntfs/Users || failure 32
-      sync
       umount /mnt/ntfs || failure 33
       rm /capture/users.wim || failure 34
       break

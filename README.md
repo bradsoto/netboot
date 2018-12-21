@@ -18,7 +18,7 @@ ROM-o-matic (https://rom-o-matic.eu/) is the simplest way to customize iPXE. Thi
 #!ipxe
 
 :retry_dhcp
-dhcp && isset ${next-server} || goto retry_dhcp
+dhcp && isset ${net0/ip} || goto retry_dhcp
 kernel nfs://${next-server}/srv/nfs/netboot.efi root=/dev/nfs rootfstype=nfs nfsroot=${next-server}:/srv/nfs/netboot,vers=3,tcp ip=dhcp rw quiet
 boot
 ```
